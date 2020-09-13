@@ -16,7 +16,7 @@ public class BruteCollinearPoints {
 
         int n = points.length;
         Point[] subPoints = new Point[4];
-
+        Arrays.sort(points);
         if (n >= 4) {
             for (int i = 0; i < n - 3; i++) {
                 subPoints[0] = points[i];

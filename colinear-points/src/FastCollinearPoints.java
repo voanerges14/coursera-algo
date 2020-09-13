@@ -1,11 +1,6 @@
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdDraw;
 import edu.princeton.cs.algs4.StdOut;
@@ -20,23 +15,35 @@ public class FastCollinearPoints {
         lineSegmentList = new ArrayList<>();
 
         int n = points.length;
-        for (int i = 0; i < n - 1; i++) {
-            Map<Double, Set<Point>> segmentsMap = new HashMap<>();
-            for (int j = i + 1; j < n; j++) {
-                segmentsMap.merge(points[i].slopeTo(points[j]), new HashSet<>(Arrays.asList(points[i], points[j])),
-                        (v1, v2) -> {
-                            Set<Point> tempPoints = new HashSet<>();
-                            tempPoints.addAll(v1);
-                            tempPoints.addAll(v2);
-                            return tempPoints;
-                        });
-            }
-            lineSegmentList.addAll(segmentsMap.values().stream()
-                    .filter(p -> p.size() >= 4)
-                    .map(this::makeSegment)
-                    .collect(Collectors.toList()));
-        }
+        for (int i = 0; i < n; i++) {
+            Point[] pointsCopy = Arrays.copyOfRange(points, i + 1, n);
+            Arrays.sort(pointsCopy, points[i].slopeOrder());
 
+            List<Point> segmentPoints = new ArrayList<>();
+
+            for (int j = 0; j < pointsCopy.length - 1; j++) {
+                if (points[i].slopeTo(pointsCopy[j]) == points[i].slopeTo(pointsCopy[j + 1])) {
+                    segmentPoints.add(pointsCopy[j]);
+                } else if (!segmentPoints.isEmpty()) {
+                    segmentPoints.add(pointsCopy[j]);
+
+                    if (segmentPoints.size() > 2) {
+                        segmentPoints.add(points[i]);
+                        lineSegmentList.add(makeSegment(segmentPoints));
+                    }
+                    segmentPoints.clear();
+                }
+            }
+
+            if (!segmentPoints.isEmpty()) {
+                segmentPoints.add(pointsCopy[pointsCopy.length - 1]);
+
+                if (segmentPoints.size() > 2) {
+                    segmentPoints.add(points[i]);
+                    lineSegmentList.add(makeSegment(segmentPoints));
+                }
+            }
+        }
     }
 
     // the number of line segments
@@ -66,10 +73,9 @@ public class FastCollinearPoints {
         }
     }
 
-    private LineSegment makeSegment(Set<Point> points) {
-        Point[] p = points.toArray(new Point[0]);
-        Arrays.sort(p);
-        return new LineSegment(p[0], p[p.length-1]);
+    private LineSegment makeSegment(List<Point> points) {
+        points.sort(Point::compareTo);
+        return new LineSegment(points.get(0), points.get(points.size()-1));
     }
 
     public static void main(String[] args) {
