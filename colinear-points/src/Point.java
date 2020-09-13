@@ -9,7 +9,6 @@
  ******************************************************************************/
 
 import java.util.Comparator;
-import javax.swing.text.Document;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class Point implements Comparable<Point> {
@@ -69,7 +68,7 @@ public class Point implements Comparable<Point> {
         if (y == that.y) {
             return 0;
         }
-        return (x - that.x) / (y - that.y);
+        return (double) (x - that.x) / (double) (y - that.y);
     }
 
     /**
@@ -86,9 +85,11 @@ public class Point implements Comparable<Point> {
      */
     public int compareTo(Point that) {
         /* YOUR CODE HERE */
-        if (this.x == that.x && this.y == that.y) {
-            return 0;
-        }
+        if (this.y < that.y) return -1;
+        if (this.y > that.y) return +1;
+        if (this.x < that.x) return -1;
+        if (this.x > that.x) return +1;
+        return 0;
     }
 
     /**
@@ -99,6 +100,7 @@ public class Point implements Comparable<Point> {
      */
     public Comparator<Point> slopeOrder() {
         /* YOUR CODE HERE */
+        return Comparator.comparingDouble(this::slopeTo);
     }
 
 
